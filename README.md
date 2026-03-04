@@ -13,6 +13,7 @@ We’ve set up an official forum for the book at [https://forums.kodeco.com/c/bo
 
 | Branch                                                                           | Edition | Release Date |
 | -------------------------------------------------------------------------------- |:-------:|:------------:|
+| [editions/5.0](https://github.com/kodecocodes/sui-materials/tree/editions/6.0) | 6.0     | 2026-MM-DD   |
 | [editions/5.0](https://github.com/kodecocodes/sui-materials/tree/editions/5.0) | 5.0     | 2023-06-14   |
 | [editions/4.0](https://github.com/kodecocodes/sui-materials/tree/editions/4.0) | 4.0     | 2021-11-10   |
 | [editions/3.0](https://github.com/kodecocodes/sui-materials/tree/editions/3.0) | 3.0     | 2021-03-17   |
