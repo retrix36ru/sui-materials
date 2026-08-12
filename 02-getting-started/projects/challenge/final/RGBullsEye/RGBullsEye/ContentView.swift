@@ -1,4 +1,4 @@
-/// Copyright (c) 2023 Kodeco LLC
+/// Copyright (c) 2026 Kodeco Ltd.
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -40,13 +40,8 @@ struct ContentView: View {
   var body: some View {
     VStack {
       ColorCircle(rgb: game.target)
-      if !showScore {
-        Text("R: ??? G: ??? B: ???")
-          .padding()
-      } else {
-        Text(game.target.intString())
-          .padding()
-      }
+      Text("R: ??? G: ??? B: ???")
+        .padding()
       ColorCircle(rgb: guess)
       Text(guess.intString())
         .padding()
@@ -57,22 +52,15 @@ struct ContentView: View {
         showScore = true
         game.check(guess: guess)
       }
-      .alert(isPresented: $showScore) {
-        Alert(
-          title: Text("Your Score"),
-          message: Text(String(game.scoreRound)),
-          dismissButton: .default(Text("OK")) {
-            game.startNewRound()
-            guess = RGB()
-          })
-      }
     }
-  }
-}
-
-struct ContentView_Previews: PreviewProvider {
-  static var previews: some View {
-    ContentView(guess: RGB())
+    .alert("Your Score", isPresented: $showScore) {
+        Button("OK") {
+          game.startNewRound()
+          guess = RGB()
+        }
+    } message: {
+      Text(String(game.scoreRound))
+      }
   }
 }
 
@@ -89,12 +77,15 @@ struct ColorSlider: View {
   var trackColor: Color
 
   var body: some View {
-    HStack {
-      Text("0")
-      Slider(value: $value)
-        .accentColor(trackColor)
-      Text("255")
-    }
+    Slider(value: $value, in: 0...1)
+    { Text(trackColor.description) }
+    minimumValueLabel: { Text("0") }
+    maximumValueLabel: { Text("255") }
     .padding(.horizontal)
+    .accentColor(trackColor)
   }
+}
+
+#Preview {
+  ContentView(guess: RGB())
 }
