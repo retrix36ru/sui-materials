@@ -41,8 +41,13 @@ struct ContentView: View {
     VStack {
       Circle()
         .fill(Color(rgbStruct: game.target))
-      Text("R: ??? G: ??? B: ???")
-        .padding()
+      if !showScore {
+        Text("R: ??? G: ??? B: ???")
+          .padding()
+      } else {
+        Text(game.target.intString())
+          .padding()
+      }
       Circle()
         .fill(Color(rgbStruct: guess))
       Text(guess.intString())
