@@ -31,54 +31,62 @@
 /// THE SOFTWARE.
 
 import SwiftUI
-import Observation
 
-@Observable
-class SavedFlights {
-  var savedFlightIds: [Int] = []
-  /*@AppStorage("SavedFlight")*/ @ObservationIgnored var savedFlightStorage = "" {
-    didSet {
-      savedFlightIds = getSavedFlights()
+
+struct WelcomeView: View {
+  @State var flightInfo = FlightData()
+  @State var showNextFlight = false
+  @State var lastFlightInfo = FlightNavigationInfo()
+
+  var body: some View {
+    NavigationStack {
+      ZStack(alignment: .topLeading) {
+        Image("welcome-background")
+          .resizable()
+          .frame(height: 250)
+        ScrollView{
+          VStack{
+            NavigationLink(value: Date()){
+              WelcomeButtonView(
+                title: "Flight Status",
+                subTitle: "Departure and arrival information"
+              )
+            }.navigationDestination(for: Date.self){ date in
+              FlightStatusBoard(
+                flights: flightInfo.getDaysFlights(date))
+            }
+            NavigationLink{
+              SearchFlights(flightData: flightInfo.flights)
+            } label: {
+              WelcomeButtonView(
+                title: "Search Flights",
+                subTitle: "Search Upcoming Flights")
+            }
+            if let id = lastFlightInfo.lastFlightId,
+               let lastFlight = flightInfo.getFlightById(id) {
+              
+              NavigationLink(value: lastFlight) {
+                WelcomeButtonView(
+                  title: "Last Flight \(lastFlight.flightName)",
+                  subTitle: "Show Next Flight Departing or Arriving at Airport"
+                )
+              }
+            }
+          }
+          Spacer()
+        }.font(.title)
+        .foregroundColor(.white)
+        .padding()
+      } .navigationDestination(for: FlightInformation.self) { flight in
+        FlightDetails(flight: flight)
     }
+      .navigationTitle("Mountain Airport")
+      // End Navigation View
+    }.environment(lastFlightInfo)
   }
-
-  init() {
-    savedFlightIds = getSavedFlights()
-  }
-
-  init(flightId: Int) {
-    savedFlightIds = [flightId]
-  }
-
-  init(flightIds: [Int]) {
-    savedFlightIds = flightIds
-  }
-
-  func isFlightSaved(_ flight: FlightInformation) -> Bool {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    let matching = flightIds.filter { $0 == flight.id }
-    return matching.isEmpty == false
-  }
-
-  func saveFight(_ flight: FlightInformation) {
-    if !isFlightSaved(flight) {
-      print("Saving flight: \(flight.id)")
-      var flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      flights.append(flight.id)
-      savedFlightStorage = flights.map { String($0) }.joined(separator: ",")
-    }  }
-
-  func removeSavedFlight(_ flight: FlightInformation) {
-    if isFlightSaved(flight) {
-      print("Removing saved flight: \(flight.id)")
-      let flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      let newFlights = flights.filter { $0 != flight.id }
-      savedFlightStorage = newFlights.map { String($0) }.joined(separator: ",")
-    }
-  }
-
-  func getSavedFlights() -> [Int] {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    return flightIds
+}
+struct ContentView_Previews: PreviewProvider {
+  static var previews: some View {
+    WelcomeView()
   }
 }

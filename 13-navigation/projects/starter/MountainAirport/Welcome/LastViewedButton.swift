@@ -1,4 +1,4 @@
-/// Copyright (c) 2023 Kodeco Inc.
+/// Copyright (c) 2021 Razeware LLC
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -18,10 +18,6 @@
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
 ///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,39 +28,37 @@
 
 import SwiftUI
 
-struct FlightDetails: View {
-  var flight: FlightInformation
-  @Environment(FlightNavigationInfo.self) var lastFlightInfo
+
+struct LastViewedButton: View {
+  var flightInfo: FlightData
+  var appEnvironment: AppEnvironment
+  @Binding var showNextFlight: Bool
+
   var body: some View {
-    ZStack {
-      Image("background-view")
-        .resizable()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-      VStack(alignment: .leading) {
-        HStack {
-          FlightDirectionGraphic(direction: flight.direction)
-            .frame(width: 40, height: 40)
-          VStack(alignment: .leading) {
-            Text("\(flight.dirString) \(flight.otherAirport)")
-            Text(flight.flightStatus)
-              .font(.subheadline)
-          }.font(.title2)
-        }
-        Spacer()
-      }.foregroundColor(.white)
-      .padding()
-      .navigationTitle("\(flight.airline) Flight \(flight.number)")
-    }
-    .onAppear{
-      lastFlightInfo.lastFlightId = flight.id
+    if
+      let id = appEnvironment.lastFlightId,
+      let lastFlight = flightInfo.getFlightById(id) {
+      // swiftlint:disable multiple_closures_with_trailing_closure
+      Button(action: {
+        showNextFlight = true
+      }) {
+        WelcomeButtonView(
+          title: "Last Viewed Flight",
+          subTitle: lastFlight.flightName,
+          imageName: "suit.heart.fill"
+        )
+      }
+      // swiftlint:enable multiple_closures_with_trailing_closure
+    } else {
+      Spacer()
     }
   }
 }
 
-#Preview {
-  NavigationView {
-    FlightDetails(
-      flight: FlightData.generateTestFlight(date: Date())
-    ).environment(FlightNavigationInfo())
+struct LastViewedButton_Previews: PreviewProvider {
+  static var previews: some View {
+    let environment = AppEnvironment()
+    environment.lastFlightId = 1
+    return LastViewedButton(flightInfo: FlightData(), appEnvironment: environment, showNextFlight: .constant(false))
   }
 }

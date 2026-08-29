@@ -18,10 +18,6 @@
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
 ///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,39 +28,55 @@
 
 import SwiftUI
 
-struct FlightDetails: View {
+struct FlightStatusIcon: View {
   var flight: FlightInformation
-  @Environment(FlightNavigationInfo.self) var lastFlightInfo
+
   var body: some View {
-    ZStack {
-      Image("background-view")
+    if flight.status == .canceled {
+      Image(systemName: "nosign")
         .resizable()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-      VStack(alignment: .leading) {
-        HStack {
-          FlightDirectionGraphic(direction: flight.direction)
+        .frame(width: 30, height: 30)
+        .foregroundColor(.white)
+        .background(
+          RoundedRectangle(cornerRadius: 2)
             .frame(width: 40, height: 40)
-          VStack(alignment: .leading) {
-            Text("\(flight.dirString) \(flight.otherAirport)")
-            Text(flight.flightStatus)
-              .font(.subheadline)
-          }.font(.title2)
-        }
-        Spacer()
-      }.foregroundColor(.white)
-      .padding()
-      .navigationTitle("\(flight.airline) Flight \(flight.number)")
-    }
-    .onAppear{
-      lastFlightInfo.lastFlightId = flight.id
+            .foregroundColor(.red)
+        )
+        .frame(width: 40, height: 40)
+    } else if flight.direction == .arrival {
+      Image(systemName: "airplane")
+        .resizable()
+        .frame(width: 30, height: 30)
+        .rotationEffect(.degrees(45.0))
+        .foregroundColor(.white)
+        .background(
+          RoundedRectangle(cornerRadius: 2)
+            .frame(width: 40, height: 40)
+            .foregroundColor(
+              Color(red: 0.89, green: 0.33, blue: 0.69)
+            )
+        )
+    } else if flight.direction == .departure {
+      Image(systemName: "airplane")
+        .resizable()
+        .frame(width: 30, height: 30)
+        .rotationEffect(.degrees(-45.0))
+        .foregroundColor(.white)
+        .background(
+          RoundedRectangle(cornerRadius: 2)
+            .frame(width: 40, height: 40)
+            .foregroundColor(
+              Color(red: 0.19, green: 0.15, blue: 0.91)
+            )
+        )
     }
   }
 }
 
-#Preview {
-  NavigationView {
-    FlightDetails(
+struct FlightStatusIcon_Previews: PreviewProvider {
+  static var previews: some View {
+    FlightStatusIcon(
       flight: FlightData.generateTestFlight(date: Date())
-    ).environment(FlightNavigationInfo())
+    )
   }
 }

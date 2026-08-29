@@ -18,10 +18,6 @@
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
 ///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,14 +28,39 @@
 
 import SwiftUI
 
-struct FlightStatusBoard: View {
+struct FlightList: View {
+  var flights: [FlightInformation]
+  var flightToShow: FlightInformation?
+  @Binding var highlightedIds: [Int]
+  func  rowHighLighted(_ flightId: Int) -> Bool {
+    return highlightedIds.contains { $0 == flightId }
+  }
+  var nextFlightId: Int { guard let flight = flights.first(where: {$0.localTime >= Date()}) else {
+    return flights.last!.id}
+    return flight.id
+  }
   var body: some View {
-    Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    ScrollViewReader { scrollProxy in
+      List(flights){ flight in
+        NavigationLink(destination: FlightDetails(flight: flight)){
+          FlightRow(flight: flight).listRowBackground(rowHighLighted(flight.id) ? Color.yellow.opacity(0.6) : Color.clear)
+            .swipeActions(edge: .leading) {
+            HighlightActionView(flightId: flight.id, highlightedIds: $highlightedIds)
+          }
+        }
+      }.onAppear{
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+          scrollProxy.scrollTo(nextFlightId, anchor: .center)
+        }
+      }
+    }
   }
 }
-
-struct FlightStatusBoard_Previews: PreviewProvider {
-  static var previews: some View {
-    FlightStatusBoard()
+#Preview {
+  NavigationStack {
+    FlightList(
+      flights: FlightData.generateTestFlights(date: Date()),
+      highlightedIds: .constant([15])
+    )
   }
 }

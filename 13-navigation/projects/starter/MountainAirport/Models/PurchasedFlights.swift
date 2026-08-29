@@ -31,10 +31,12 @@
 /// THE SOFTWARE.
 
 import SwiftUI
+import Observation
 
-class PurchasedFlights: ObservableObject {
-  @Published var purchasedFlightIds: [Int] = []
-  @AppStorage("PurchasedFlight") var purchasedFlightStorage = "" {
+@Observable
+class PurchasedFlights {
+  var purchasedFlightIds: [Int] = []
+  /*@AppStorage("PurchasedFlight")*/ @ObservationIgnored var purchasedFlightStorage = "" {
     didSet {
       purchasedFlightIds = getPurchasedFlights()
     }

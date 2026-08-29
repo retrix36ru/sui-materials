@@ -1,4 +1,4 @@
-/// Copyright (c) 2023 Kodeco Inc.
+/// Copyright (c) 2021 Razeware LLC
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -31,54 +31,40 @@
 /// THE SOFTWARE.
 
 import SwiftUI
-import Observation
 
-@Observable
-class SavedFlights {
-  var savedFlightIds: [Int] = []
-  /*@AppStorage("SavedFlight")*/ @ObservationIgnored var savedFlightStorage = "" {
-    didSet {
-      savedFlightIds = getSavedFlights()
-    }
+struct AwardsView: View {
+  @EnvironmentObject var flightNavigation: AppEnvironment
+  var awardArray: [AwardInformation] {
+    flightNavigation.awardList
   }
 
-  init() {
-    savedFlightIds = getSavedFlights()
+  var body: some View {
+    ScrollView {
+      LazyVStack {
+        ForEach(awardArray, id: \.self) { award in
+          NavigationLink(
+            destination: AwardDetails(award: award)) {
+            AwardCardView(award: award)
+              .foregroundColor(.black)
+              .frame(width: 150, height: 220)
+          }
+        }
+      }
+    }.padding()
+    .background(
+      Image("background-view")
+        .resizable()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    )
+    .navigationBarTitle("Your Awards")
   }
+}
 
-  init(flightId: Int) {
-    savedFlightIds = [flightId]
-  }
-
-  init(flightIds: [Int]) {
-    savedFlightIds = flightIds
-  }
-
-  func isFlightSaved(_ flight: FlightInformation) -> Bool {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    let matching = flightIds.filter { $0 == flight.id }
-    return matching.isEmpty == false
-  }
-
-  func saveFight(_ flight: FlightInformation) {
-    if !isFlightSaved(flight) {
-      print("Saving flight: \(flight.id)")
-      var flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      flights.append(flight.id)
-      savedFlightStorage = flights.map { String($0) }.joined(separator: ",")
-    }  }
-
-  func removeSavedFlight(_ flight: FlightInformation) {
-    if isFlightSaved(flight) {
-      print("Removing saved flight: \(flight.id)")
-      let flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      let newFlights = flights.filter { $0 != flight.id }
-      savedFlightStorage = newFlights.map { String($0) }.joined(separator: ",")
-    }
-  }
-
-  func getSavedFlights() -> [Int] {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    return flightIds
+struct AwardsView_Previews: PreviewProvider {
+  static var previews: some View {
+    NavigationView {
+      AwardsView()
+    }.navigationViewStyle(StackNavigationViewStyle())
+    .environmentObject(AppEnvironment())
   }
 }

@@ -1,4 +1,4 @@
-/// Copyright (c) 2023 Kodeco Inc.
+/// Copyright (c) 2021 Razeware LLC
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -31,54 +31,66 @@
 /// THE SOFTWARE.
 
 import SwiftUI
-import Observation
 
-@Observable
-class SavedFlights {
-  var savedFlightIds: [Int] = []
-  /*@AppStorage("SavedFlight")*/ @ObservationIgnored var savedFlightStorage = "" {
-    didSet {
-      savedFlightIds = getSavedFlights()
-    }
-  }
+class AppEnvironment: ObservableObject {
+  @Published var lastFlightId: Int?
+  @Published var awardList: [AwardInformation] = []
 
   init() {
-    savedFlightIds = getSavedFlights()
-  }
-
-  init(flightId: Int) {
-    savedFlightIds = [flightId]
-  }
-
-  init(flightIds: [Int]) {
-    savedFlightIds = flightIds
-  }
-
-  func isFlightSaved(_ flight: FlightInformation) -> Bool {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    let matching = flightIds.filter { $0 == flight.id }
-    return matching.isEmpty == false
-  }
-
-  func saveFight(_ flight: FlightInformation) {
-    if !isFlightSaved(flight) {
-      print("Saving flight: \(flight.id)")
-      var flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      flights.append(flight.id)
-      savedFlightStorage = flights.map { String($0) }.joined(separator: ",")
-    }  }
-
-  func removeSavedFlight(_ flight: FlightInformation) {
-    if isFlightSaved(flight) {
-      print("Removing saved flight: \(flight.id)")
-      let flights = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-      let newFlights = flights.filter { $0 != flight.id }
-      savedFlightStorage = newFlights.map { String($0) }.joined(separator: ",")
-    }
-  }
-
-  func getSavedFlights() -> [Int] {
-    let flightIds = savedFlightStorage.split(separator: ",").compactMap { Int($0) }
-    return flightIds
-  }
-}
+    awardList.append(
+      AwardInformation(
+        imageName: "first-visit-award",
+        title: "First Visit",
+        description: "Awarded the first time you open the app while at the airport.",
+        awarded: true
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "overnight-award",
+        title: "Left Car Overnight",
+        description: "You left you car parked overnight in one of our parking lots.",
+        awarded: true
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "meal-award",
+        title: "Meal at Airport",
+        description: "You used the app to receive a discount at one of our restaurants.",
+        awarded: false
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "first-flight-award",
+        title: "First Flight",
+        description: "You checked in for a flight using the app for the first time.",
+        awarded: true
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "shopping-award",
+        title: "Almost Duty Free",
+        description: "You used the app to receive a discount at one of our vendors.",
+        awarded: true
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "rainy-day-award",
+        title: "Rainy Day",
+        description: "You flight was delayed because of weather.",
+        awarded: false
+      )
+    )
+    awardList.append(
+      AwardInformation(
+        imageName: "return-home-award",
+        title: "Welcome Home",
+        description: "Your returned to the airport after leaving from it.",
+        awarded: true
+      )
+    )
+  }}
